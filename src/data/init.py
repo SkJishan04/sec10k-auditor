@@ -1,0 +1,1 @@
+"""Data ingestion and preprocessing package: EDGAR client, PDF parsing, chunking."""
