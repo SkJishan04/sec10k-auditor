@@ -1,0 +1,1 @@
+"""Persistence package: SQLAlchemy models, session management, repository."""
