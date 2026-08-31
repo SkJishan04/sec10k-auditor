@@ -1,0 +1,1 @@
+"""Hybrid retrieval package: dense vector search + sparse BM25 keyword search."""
