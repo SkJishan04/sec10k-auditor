@@ -1,0 +1,1 @@
+"""Core domain package: shared schemas and exceptions with no external deps."""
