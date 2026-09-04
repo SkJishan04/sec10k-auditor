@@ -62,3 +62,44 @@ Manual review is slow, inconsistent across analysts, and error-prone at scale �
 > *"Financial due diligence in M&A takes weeks due to manual parsing of SEC 10-K footnoted risks. This system was built to cut financial-audit extraction time by automating retrieval and extraction — while treating numeric hallucination as a hard failure mode to engineer against, not an acceptable tradeoff."*
 
 This project exists to demonstrate that LLM systems can be built **responsibly** in high-stakes, numeric-sensitive domains — by pairing generation with retrieval-grounded verification rather than trusting model output at face value.
+
+## Key Features
+
+- 🔍 **Hybrid Retrieval** — Dense vector search (sentence-transformers) fused with sparse BM25 keyword search, so exact figures and rare terms are recovered alongside semantic matches.
+- 🧠 **Fine-Tuned Numeric Extraction** — Llama-3 8B specialized via QLoRA + DPO specifically to reduce numeric hallucination during financial figure extraction.
+- ✅ **Hallucination Guard** — Every extracted metric is checked against its cited source span before being included in a report; unverifiable claims are flagged and excluded, not silently kept.
+- 🤖 **Agentic Orchestration** — Tool-calling orchestrator plans retrieval and extraction steps rather than using a single fixed prompt.
+- 📑 **Structured, Cited Output** — Reports are validated Pydantic objects with page-level source citations for every claim.
+- ⚙️ **Config-Driven Pipeline** — Retrieval weights, model provider, and thresholds are all environment-driven, not hardcoded.
+- 📈 **Observability** — Per-run latency and cost tracking, structured JSON logging.
+- 🧪 **Evaluation Harness** — Retrieval quality and numeric-accuracy evaluation against a golden dataset.
+
+## System Workflow
+
+<!-- 📸 IMAGE PLACEHOLDER 2: Optional custom workflow illustration -->
+<!-- ![Workflow Illustration](docs/images/workflow.png) -->
+
+```mermaid
+flowchart LR
+    A[📄 SEC 10-K PDF] --> B[PDF Parser<br/>page-level extraction]
+    B --> C[Chunker<br/>page-anchored, overlapping]
+    C --> D[(Embedding Model)]
+    C --> E[(BM25 Index)]
+    D --> F[(Chroma Vector Store)]
+    F --> G{Hybrid Retriever<br/>weighted fusion}
+    E --> G
+    G --> H[Agentic Orchestrator]
+    H --> I[DPO-Tuned LLM<br/>numeric extraction]
+    I --> J[Hallucination Guard<br/>source verification]
+    J -->|verified| K[✅ Financial Risk Report]
+    J -->|unverified| L[🚩 Flagged & Excluded]
+```
+
+**Flow summary:**
+1. A 10-K PDF is parsed page-by-page and split into overlapping, page-anchored chunks.
+2. Chunks are embedded and indexed in both a dense vector store and an in-memory BM25 index.
+3. A user query (or automated risk-scan trigger) is routed through the hybrid retriever, which fuses dense + sparse scores.
+4. The agentic orchestrator plans which extraction/analysis tools to call and in what order.
+5. The fine-tuned LLM extracts structured numeric metrics and risk narratives from retrieved chunks.
+6. The hallucination guard cross-checks every number against its cited source text before it's persisted or shown.
+
