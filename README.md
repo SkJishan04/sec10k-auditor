@@ -396,3 +396,31 @@ jobs:
 
 Every push runs linting (`ruff`), type checking (`mypy`), migrations, and the full test suite.
 
+## Limitations
+
+- **Scanned/image-only PDFs** are not supported without an OCR layer (no text extraction fallback yet).
+- **Single-filing scope** — cross-filing / cross-year trend analysis is not yet implemented.
+- **BM25 index is rebuilt per-query** rather than persisted, which is efficient at single-filing scale but would need optimization for very large corpora.
+- **Local QLoRA provider requires GPU** — CPU-only environments must use the Anthropic provider.
+- **Evaluation golden dataset is manually curated** and currently limited in size; broader coverage would strengthen result confidence.
+
+## Future Improvements
+
+- [ ] OCR fallback for scanned filings (e.g. via `pytesseract`)
+- [ ] Cross-filing trend analysis (multi-year risk trajectory)
+- [ ] Persisted BM25 index for large-scale corpora
+- [ ] Caching layer for repeated retrieval queries
+- [ ] Expanded golden evaluation dataset with adversarial numeric cases
+- [ ] Support for 10-Q and 8-K filings in addition to 10-K
+- [ ] Async background job queue for long-running ingestion/analysis
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+---
+
+<p align="center">
+  Built as a demonstration of production-oriented AI/ML/GenAI engineering practices.
+</p>
+
