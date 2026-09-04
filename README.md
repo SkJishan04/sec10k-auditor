@@ -198,3 +198,59 @@ sec10k-auditor/
 ```
 
 > Each layer has a single responsibility: `api/` never contains business logic, `services/` never imports FastAPI, and `db/` is the only place raw SQL/ORM queries are written.
+
+## Usage Examples
+
+### 1. Register a filing for ingestion
+
+```bash
+curl -X POST http://localhost:8000/api/filings \
+  -H "Content-Type: application/json" \
+  -d '{
+        "company_name": "Example Corp",
+        "ticker": "EXMP",
+        "cik": "0000320193",
+        "fiscal_year": 2023,
+        "filing_type": "10-K"
+      }'
+```
+
+**Response:**
+```json
+{
+  "id": 1,
+  "company_name": "Example Corp",
+  "ticker": "EXMP",
+  "status": "pending",
+  "chunk_count": 0,
+  "created_at": "2026-01-15T00:00:00Z"
+}
+```
+
+### 2. Trigger a risk analysis run
+
+```bash
+curl -X POST http://localhost:8000/api/analysis/filings/1/run
+```
+
+### 3. Sample structured output
+
+```json
+{
+  "summary": "Example Corp shows moderate risk concentrated in off-balance-sheet lease commitments...",
+  "overall_risk_severity": "medium",
+  "risk_findings": [
+    {
+      "category": "off_balance_sheet_liability",
+      "severity": "medium",
+      "title": "Operating lease commitments not reflected on balance sheet",
+      "explanation": "Footnote 12 discloses $340M in future lease obligations...",
+      "sources": [{ "chunk_id": 214, "page_number": 87 }]
+    }
+  ],
+  "numeric_hallucination_flags": []
+}
+```
+
+<!-- 📸 IMAGE PLACEHOLDER 3: Screenshot of frontend report viewer -->
+<!-- ![Report Viewer Screenshot](docs/images/report-viewer.png) -->
