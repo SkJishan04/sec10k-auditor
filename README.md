@@ -284,3 +284,52 @@ flowchart LR
     N --> H[Hallucination Rate Tracking]
 ```
 
+## Setup & Installation
+
+### Prerequisites
+- Python 3.11+
+- PostgreSQL 14+
+- Docker & Docker Compose (recommended)
+
+### Local Setup
+
+```bash
+# 1. Clone and enter the repo
+git clone https://github.com/<your-username>/sec10k-auditor.git
+cd sec10k-auditor
+
+# 2. Create a virtual environment
+python3.11 -m venv .venv
+source .venv/bin/activate
+
+# 3. Install dependencies
+pip install -e ".[dev]"
+
+# 4. Configure environment
+cp .env.example .env
+# then edit .env and set ANTHROPIC_API_KEY, DATABASE_URL, etc.
+
+# 5. Run database migrations
+alembic upgrade head
+
+# 6. Start the API
+uvicorn src.api.main:app --reload
+```
+
+The API will be available at `http://localhost:8000`, with interactive docs at `http://localhost:8000/docs`.
+
+## Environment Variables
+
+| Variable | Description | Default |
+|---|---|---|
+| `DATABASE_URL` | PostgreSQL connection string | `postgresql+psycopg2://auditor:auditor@localhost:5432/sec10k_auditor` |
+| `CHROMA_PERSIST_DIR` | Local path for vector store persistence | `./data/chroma` |
+| `EMBEDDING_MODEL_NAME` | Sentence-transformers model | `all-mpnet-base-v2` |
+| `LLM_PROVIDER` | `anthropic` or `local_qlora` | `anthropic` |
+| `ANTHROPIC_API_KEY` | API key for Claude | *(required if using Anthropic)* |
+| `EDGAR_USER_AGENT` | Required identifying header for SEC EDGAR | *(required)* |
+| `HYBRID_DENSE_WEIGHT` / `HYBRID_SPARSE_WEIGHT` | Fusion weights for hybrid retrieval | `0.6` / `0.4` |
+| `NUMERIC_TOLERANCE_PCT` | Tolerance for hallucination guard verification | `0.5` |
+
+> Full list in [`.env.example`](.env.example). Never commit a real `.env` file — it's excluded via `.gitignore`.
+
