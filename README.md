@@ -254,3 +254,33 @@ curl -X POST http://localhost:8000/api/analysis/filings/1/run
 
 <!-- 📸 IMAGE PLACEHOLDER 3: Screenshot of frontend report viewer -->
 <!-- ![Report Viewer Screenshot](docs/images/report-viewer.png) -->
+
+## Results
+
+> Replace the placeholders below with your actual measured numbers once you run `evaluation/retrieval_eval.py` and `evaluation/numeric_accuracy_eval.py` against your golden dataset.
+
+| Metric | Baseline (Dense-only) | Hybrid RAG (This System) |
+|---|---|---|
+| Retrieval Recall@8 | — | — |
+| Numeric Extraction Accuracy | — | — |
+| Numeric Hallucination Rate | — | — |
+| Avg. Analysis Latency | — | — |
+| Avg. Cost per Filing | — | — |
+
+## Evaluation Methodology
+
+Two complementary evaluation tracks:
+
+**1. Retrieval Evaluation** (`evaluation/retrieval_eval.py`)
+Measures whether the hybrid retriever surfaces the correct source chunk for a curated set of known question–answer pairs drawn from real filings, reported as Recall@K and Mean Reciprocal Rank.
+
+**2. Numeric Accuracy Evaluation** (`evaluation/numeric_accuracy_eval.py`)
+For each metric in the golden dataset, compares the LLM-extracted value against the ground-truth value within a configurable tolerance (`NUMERIC_TOLERANCE_PCT`), and separately tracks the **hallucination rate** — extracted values with no supporting source span at all.
+
+```mermaid
+flowchart LR
+    G[Golden Dataset<br/>known Q/A + ground-truth metrics] --> R[Retrieval Eval<br/>Recall@K, MRR]
+    G --> N[Numeric Accuracy Eval<br/>tolerance-based comparison]
+    N --> H[Hallucination Rate Tracking]
+```
+
