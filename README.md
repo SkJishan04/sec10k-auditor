@@ -103,3 +103,68 @@ flowchart LR
 5. The fine-tuned LLM extracts structured numeric metrics and risk narratives from retrieved chunks.
 6. The hallucination guard cross-checks every number against its cited source text before it's persisted or shown.
 
+## Architecture
+
+```mermaid
+flowchart TB
+    subgraph Client
+        UI[Frontend<br/>HTML/CSS/JS]
+    end
+
+    subgraph API["FastAPI Application"]
+        Routes[Routes Layer<br/>filings.py / analysis.py]
+        Services[Service Layer<br/>filing_service / analysis_service]
+        Repo[Repository Layer<br/>data access abstraction]
+    end
+
+    subgraph AI["AI/ML Pipeline"]
+        Retriever[Hybrid Retriever]
+        Orchestrator[Agentic Orchestrator]
+        LLM[LLM Provider<br/>Anthropic / Local QLoRA]
+        Guard[Hallucination Guard]
+    end
+
+    subgraph Data["Data Layer"]
+        PG[(PostgreSQL<br/>filings, chunks, runs)]
+        Chroma[(ChromaDB<br/>dense vectors)]
+    end
+
+    subgraph Ingestion
+        EDGAR[EDGAR Client]
+        Parser[PDF Parser]
+        Chunker[Chunker]
+    end
+
+    UI --> Routes
+    Routes --> Services
+    Services --> Repo
+    Repo --> PG
+    Services --> Retriever
+    Retriever --> Chroma
+    Retriever --> Orchestrator
+    Orchestrator --> LLM
+    LLM --> Guard
+    Guard --> Services
+    EDGAR --> Parser --> Chunker --> Retriever
+```
+
+**Design principles:**
+- **Layered separation** — routes never touch the database directly; services never import FastAPI.
+- **Repository pattern** — all SQL lives behind `FilingRepository` / `AnalysisRepository`, enabling unit tests against in-memory SQLite.
+- **Provider abstraction** — `base_provider.py` defines the LLM interface; Anthropic and local QLoRA implementations are interchangeable via a config flag.
+
+## Tech Stack
+
+| Layer | Technology | Purpose |
+|---|---|---|
+| **LLM / GenAI** | Anthropic Claude, Llama-3 8B (QLoRA + DPO) | Report generation & specialized numeric extraction |
+| **Fine-tuning** | `transformers`, `peft`, `trl`, `bitsandbytes` | Parameter-efficient fine-tuning with preference optimization |
+| **Retrieval** | `sentence-transformers`, `rank-bm25`, ChromaDB | Hybrid dense + sparse semantic search |
+| **Backend** | FastAPI, Pydantic v2 | Async REST API with validated I/O |
+| **Database** | PostgreSQL, SQLAlchemy 2.0, Alembic | Persistence & schema migrations |
+| **Ingestion** | `httpx`, `tenacity`, `pypdf` | EDGAR fetching, retries, PDF parsing |
+| **Observability** | `structlog` | Structured JSON logging, cost/latency tracking |
+| **Frontend** | HTML / CSS / vanilla JS | Lightweight report viewer |
+| **Testing** | `pytest`, `pytest-asyncio`, `pytest-cov` | Unit, integration, and eval tests |
+| **Tooling** | `ruff`, `mypy`, Docker, Docker Compose | Linting, typing, containerization |
+
