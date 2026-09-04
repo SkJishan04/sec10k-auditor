@@ -168,3 +168,33 @@ flowchart TB
 | **Testing** | `pytest`, `pytest-asyncio`, `pytest-cov` | Unit, integration, and eval tests |
 | **Tooling** | `ruff`, `mypy`, Docker, Docker Compose | Linting, typing, containerization |
 
+## Project Structure
+
+```text
+sec10k-auditor/
+├── src/
+│   ├── config/          # Settings & logging configuration
+│   ├── core/            # Shared schemas & exceptions (no external deps)
+│   ├── data/            # EDGAR client, PDF parser, chunker
+│   ├── retrieval/        # Embeddings, vector store, BM25, hybrid fusion
+│   ├── llm/              # Provider abstraction, prompts, hallucination guard
+│   ├── agents/           # Tool-calling orchestrator
+│   ├── db/               # SQLAlchemy models, session, repositories
+│   ├── services/          # Business logic (filing & analysis services)
+│   └── api/               # FastAPI app, routes, dependencies
+├── migrations/            # Alembic schema migrations
+├── training/               # QLoRA/DPO dataset prep & training scripts
+├── evaluation/              # Golden dataset + retrieval/numeric eval
+├── frontend/                # Static report viewer UI
+├── tests/
+│   ├── unit/
+│   └── integration/
+├── scripts/                  # One-off utility scripts
+├── docker-compose.yml
+├── Dockerfile
+├── alembic.ini
+├── pyproject.toml
+└── .env.example
+```
+
+> Each layer has a single responsibility: `api/` never contains business logic, `services/` never imports FastAPI, and `db/` is the only place raw SQL/ORM queries are written.
