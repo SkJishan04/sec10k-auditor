@@ -333,3 +333,66 @@ The API will be available at `http://localhost:8000`, with interactive docs at `
 
 > Full list in [`.env.example`](.env.example). Never commit a real `.env` file — it's excluded via `.gitignore`.
 
+## Testing
+
+```bash
+# Run the full test suite with coverage
+pytest --cov=src --cov-report=term-missing
+
+# Run only unit tests
+pytest tests/unit
+
+# Run only integration tests
+pytest tests/integration
+```
+
+Test coverage includes:
+- **Unit tests** — chunker boundary behavior, BM25 scoring, hallucination guard logic
+- **Integration tests** — full filing ingestion → analysis API flow
+- **Evaluation tests** — retrieval recall and numeric extraction accuracy against the golden dataset
+
+## Docker
+
+```bash
+# Build and run the full stack (API + PostgreSQL)
+docker compose up --build
+```
+
+This starts:
+- `api` — the FastAPI application
+- `db` — PostgreSQL with a persisted volume
+
+Migrations run automatically on container startup.
+
+## CI/CD
+
+> Suggested GitHub Actions pipeline — add `.github/workflows/ci.yml`:
+
+```yaml
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: auditor
+          POSTGRES_PASSWORD: auditor
+          POSTGRES_DB: sec10k_auditor
+        ports: ["5432:5432"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e ".[dev]"
+      - run: ruff check .
+      - run: mypy src
+      - run: alembic upgrade head
+      - run: pytest --cov=src
+```
+
+Every push runs linting (`ruff`), type checking (`mypy`), migrations, and the full test suite.
+
