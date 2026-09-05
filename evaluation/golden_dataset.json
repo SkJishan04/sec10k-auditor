@@ -1,0 +1,23 @@
+{
+  "description": "Golden evaluation set for retrieval and numeric-extraction accuracy. Populate filing_id and relevant_chunk_ids after seeding a real filing with scripts/seed_sample_filing.py.",
+  "retrieval_cases": [
+    {
+      "filing_id": 1,
+      "query": "off-balance sheet arrangements and liabilities",
+      "relevant_chunk_ids": []
+    },
+    {
+      "filing_id": 1,
+      "query": "total long-term debt and lease obligations",
+      "relevant_chunk_ids": []
+    }
+  ],
+  "numeric_cases": [
+    {
+      "filing_id": 1,
+      "metric_name": "Total Long-Term Debt",
+      "expected_value": 0.0,
+      "tolerance_pct": 0.5
+    }
+  ]
+}
