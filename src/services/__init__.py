@@ -1,0 +1,1 @@
+"""Service layer: business logic decoupled from FastAPI and raw SQL."""
