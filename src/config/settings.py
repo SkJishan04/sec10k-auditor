@@ -32,9 +32,11 @@ class Settings(BaseSettings):
     embedding_model_name: str = "sentence-transformers/all-mpnet-base-v2"
 
     # --- LLM providers ---
-    llm_provider: Literal["anthropic", "local_qlora"] = "anthropic"
+    llm_provider: Literal["anthropic", "openai", "local_qlora"] = "anthropic"
     anthropic_api_key: str = ""
     anthropic_model: str = "claude-sonnet-4-6"
+    openai_api_key: str = ""
+    openai_model: str = "gpt-4o"
 
     local_base_model_id: str = "meta-llama/Meta-Llama-3-8B-Instruct"
     local_adapter_path: str = "./training/output/dpo_adapter"
