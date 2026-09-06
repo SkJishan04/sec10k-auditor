@@ -18,6 +18,7 @@ from src.llm.anthropic_provider import AnthropicProvider
 from src.llm.base_provider import BaseLLMProvider
 from src.llm.hallucination_guard import HallucinationGuard
 from src.llm.local_qlora_provider import LocalQLoRAProvider
+from src.llm.openai_provider import OpenAIProvider
 from src.retrieval.embedding_service import EmbeddingService
 from src.retrieval.hybrid_retriever import HybridRetriever
 from src.retrieval.vector_store import ChromaVectorStore
@@ -45,6 +46,8 @@ def get_llm_provider() -> BaseLLMProvider:
     settings = get_settings()
     if settings.llm_provider == "anthropic":
         return AnthropicProvider()
+    if settings.llm_provider == "openai":
+        return OpenAIProvider()
     return LocalQLoRAProvider()
 
 
