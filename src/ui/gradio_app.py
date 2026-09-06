@@ -7,6 +7,14 @@ in the same process and calls the service layer in-process rather than
 looping back through HTTP -- there is no redundant network hop and no
 separate CORS concern, while the underlying business logic is exactly the
 same FilingService / AnalysisService used by the REST routes.
+
+Note: the module must not touch the database at import time (no DB calls
+at module scope) -- `demo = build_demo()` runs the moment this module is
+imported, including during test collection, and any eager DB query here
+would try to hit the real configured database (e.g. Postgres) instead of
+the SQLite override used by the test suite. All data loading happens via
+`demo.load(...)` / button click handlers instead, which only run once the
+UI is actually rendered.
 """
 
 import pandas as pd
@@ -176,7 +184,9 @@ def build_demo() -> gr.Blocks:
         with gr.Tab("3. Filings"):
             refresh_btn = gr.Button("Refresh")
             filings_table = gr.Dataframe(
-                headers=_FILINGS_COLUMNS, value=_list_filings_df(), interactive=False
+                headers=_FILINGS_COLUMNS,
+                value=pd.DataFrame(columns=_FILINGS_COLUMNS),
+                interactive=False,
             )
 
         with gr.Tab("4. Run Analysis"):
@@ -196,6 +206,7 @@ def build_demo() -> gr.Blocks:
             ingest_pdf, inputs=[filing_id_ingest, pdf_upload], outputs=[ingest_status, filings_table]
         )
         refresh_btn.click(_list_filings_df, outputs=filings_table)
+        demo.load(_list_filings_df, outputs=filings_table)
         run_btn.click(
             run_analysis,
             inputs=filing_id_analyze,
