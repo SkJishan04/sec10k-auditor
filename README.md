@@ -7,6 +7,7 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-pytest-blue.svg)](#testing)
 [![Docker](https://img.shields.io/badge/docker-ready-2496ED.svg)](#docker)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/SkJishan04/sec10k-auditor/blob/main/colab_demo.ipynb)
 
 <!-- 📸 IMAGE PLACEHOLDER 1: Hero banner / architecture illustration -->
 <!-- ![Project Banner](docs/images/banner.png) -->
