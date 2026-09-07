@@ -14,7 +14,6 @@ from src.agents.orchestrator import AnalysisOrchestrator
 from src.config.settings import get_settings
 from src.db.repository import AnalysisRepository, FilingRepository
 from src.db.session import get_db
-from src.llm.anthropic_provider import AnthropicProvider
 from src.llm.base_provider import BaseLLMProvider
 from src.llm.hallucination_guard import HallucinationGuard
 from src.llm.local_qlora_provider import LocalQLoRAProvider
@@ -44,8 +43,6 @@ def get_hybrid_retriever() -> HybridRetriever:
 @lru_cache
 def get_llm_provider() -> BaseLLMProvider:
     settings = get_settings()
-    if settings.llm_provider == "anthropic":
-        return AnthropicProvider()
     if settings.llm_provider == "openai":
         return OpenAIProvider()
     return LocalQLoRAProvider()
